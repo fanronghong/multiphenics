@@ -16,8 +16,6 @@
 // along with multiphenics. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifdef HAS_PETSC
-
 #include <multiphenics/la/BlockPETScSubVector.h>
 #include <multiphenics/log/log.h>
 
@@ -517,5 +515,3 @@ void BlockPETScSubVector::from_restricted_subvector_values(
   }
   dolfin_assert(restricted_value_iterator == block_restricted_subvector_values.size());
 }
-
-#endif
