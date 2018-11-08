@@ -45,12 +45,6 @@ class BlockDirichletBC(BlockDirichletBC_Base):
                 assert block_index in block_function_space.components_to_sub_components, "Block function space and BC block index are not consistent on the sub space."
                 block_index = block_function_space.components_to_sub_components[block_index]
             self.bcs[block_index].append(bc)
-        # We disable the check on dof map range which is carried out by DirichletBC::check_arguments,
-        # because BCs are defined on unrestricted function spaces, while sub tensors to which BCs
-        # will be applied may be restricted
-        for bc in self.bcs:
-            for bc_I in bc:
-                bc_I.parameters["check_dofmap_range"] = False
         # Call Parent
         BlockDirichletBC_Base.__init__(self, self.bcs, self._block_function_space.cpp_object())
         
