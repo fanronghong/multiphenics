@@ -46,7 +46,7 @@ class BlockDirichletBC(BlockDirichletBC_Base):
                 block_index = block_function_space.components_to_sub_components[block_index]
             self.bcs[block_index].append(bc)
         # Call Parent
-        BlockDirichletBC_Base.__init__(self, self.bcs, self._block_function_space.cpp_object())
+        BlockDirichletBC_Base.__init__(self, self.bcs, self._block_function_space._cpp_object)
         
     def __getitem__(self, key):
         return self.bcs[key]
