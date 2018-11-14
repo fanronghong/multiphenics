@@ -32,8 +32,8 @@ def mesh():
 # Case 0a: simple forms (no nesting), standard forms [linear form]
 def test_case_0a_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -49,8 +49,8 @@ def test_case_0a_linear(mesh):
 # Case 0a: simple forms (no nesting), standard forms [bilinear form]
 def test_case_0a_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -72,8 +72,8 @@ def test_case_0a_bilinear(mesh):
 # Case 0b: simple forms (no nesting), define a useless subspace (equal to original space) and assemble on subspace [linear form]
 def test_case_0b_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -92,8 +92,8 @@ def test_case_0b_linear(mesh):
 # Case 0b: simple forms (no nesting), define a useless subspace (equal to original space) and assemble on subspace [bilinear form]
 def test_case_0b_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -118,8 +118,8 @@ def test_case_0b_bilinear(mesh):
 # Case 0c: simple forms (no nesting), define the velocity subspace and assemble on subspace [linear form]
 def test_case_0c_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -137,8 +137,8 @@ def test_case_0c_linear(mesh):
 # Case 0c: simple forms (no nesting), define the velocity subspace and assemble on subspace [bilinear form]
 def test_case_0c_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -158,8 +158,8 @@ def test_case_0c_bilinear(mesh):
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [linear form]
 def test_case_0d_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -177,8 +177,8 @@ def test_case_0d_linear(mesh):
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [bilinear form]
 def test_case_0d_bilinear_1(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -198,8 +198,8 @@ def test_case_0d_bilinear_1(mesh):
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [bilinear form]
 def test_case_0d_bilinear_2(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -220,8 +220,8 @@ def test_case_0d_bilinear_2(mesh):
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [bilinear form]
 def test_case_0d_bilinear_3(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -242,8 +242,8 @@ def test_case_0d_bilinear_3(mesh):
 # Case 0e: simple forms (no nesting), define both velocity and pressure subspaces and assemble rectangular matrix on them
 def test_case_0e_1(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -264,8 +264,8 @@ def test_case_0e_1(mesh):
 # Case 0e: simple forms (no nesting), define both velocity and pressure subspaces and assemble rectangular matrix on them
 def test_case_0e_2(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -287,8 +287,8 @@ def test_case_0e_2(mesh):
 # Case 0e: simple forms (no nesting), define both velocity and pressure subspaces and assemble rectangular matrix on them
 def test_case_0e_3(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -310,8 +310,8 @@ def test_case_0e_3(mesh):
 # Case 0f: simple forms (no nesting), test block_derivative
 def test_case_0f(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -340,8 +340,8 @@ def test_case_0f(mesh):
 # Case 0g: simple forms (no nesting), test block_adjoint
 def test_case_0g(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -365,8 +365,8 @@ def test_case_0g(mesh):
 # Case 0h: simple forms (no nesting), sum [linear form]
 def test_case_0h_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -388,8 +388,8 @@ def test_case_0h_linear(mesh):
 # Case 0h: simple forms (no nesting), sum [bilinear form]
 def test_case_0h_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -418,8 +418,8 @@ def test_case_0h_bilinear(mesh):
 # Case 0i: simple forms (no nesting), sum [linear form]
 def test_case_0i_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -439,8 +439,8 @@ def test_case_0i_linear(mesh):
 # Case 0i: simple forms (no nesting), product with scalar [bilinear form]
 def test_case_0i_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -467,8 +467,8 @@ def test_case_0i_bilinear(mesh):
 # Case 0j: simple forms (no nesting), product between bilinear form and solution
 def test_case_0j(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -499,8 +499,8 @@ def test_case_0j(mesh):
 # Case 1a: forms with at most one level of nesting, test nesting on standard forms [linear form]
 def test_case_1a_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -518,8 +518,8 @@ def test_case_1a_linear(mesh):
 # Case 1a: forms with at most one level of nesting, test nesting on standard forms [bilinear form]
 def test_case_1a_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -543,8 +543,8 @@ def test_case_1a_bilinear(mesh):
 # Case 1b: forms with at most one level of nesting, test non constant nesting levels [linear form]
 def test_case_1b_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test functions
     vq = BlockTestFunction(W)
@@ -562,8 +562,8 @@ def test_case_1b_linear(mesh):
 # Case 1b: forms with at most one level of nesting, test non constant nesting levels [bilinear form]
 def test_case_1b_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -587,8 +587,8 @@ def test_case_1b_bilinear(mesh):
 # Case 1c: forms with at most one level of nesting, test block_adjoint in nested matrix
 def test_case_1c(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, Q])
     # Test and trial functions
     vq = BlockTestFunction(W)
@@ -610,8 +610,8 @@ def test_case_1c(mesh):
 # Case 1d: forms with at most one level of nesting, test nesting on standard forms [linear form]
 def test_case_1d_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q, Q])
     # Test functions
     v1v2q1q2 = BlockTestFunction(W)
@@ -633,8 +633,8 @@ def test_case_1d_linear(mesh):
 # Case 1d: forms with at most one level of nesting, test nesting on standard forms [bilinear form]
 def test_case_1d_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q, Q])
     # Test and trial functions
     v1v2q1q2 = BlockTestFunction(W)
@@ -674,8 +674,8 @@ def test_case_1d_bilinear(mesh):
 # Case 1e: forms with at most one level of nesting, test non constant nesting levels [linear form]
 def test_case_1e_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q, Q])
     # Test functions
     v1v2q1q2 = BlockTestFunction(W)
@@ -698,8 +698,8 @@ def test_case_1e_linear(mesh):
 # Case 1e: forms with at most one level of nesting, test non constant nesting levels [bilinear form]
 def test_case_1e_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q, Q])
     # Test and trial functions
     v1v2q1q2 = BlockTestFunction(W)
@@ -740,8 +740,8 @@ def test_case_1e_bilinear(mesh):
 # Case 1f: forms with at most one level of nesting, test block_adjoint in nested matrix
 def test_case_1f(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q, Q])
     # Test and trial functions
     v1v2q1q2 = BlockTestFunction(W)
@@ -777,8 +777,8 @@ def test_case_1f(mesh):
 # Case 1g: forms with at most one level of nesting, test nesting on standard forms [linear form]
 def test_case_1g_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test functions
     v1v2q = BlockTestFunction(W)
@@ -798,8 +798,8 @@ def test_case_1g_linear(mesh):
 # Case 1g: forms with at most one level of nesting, test nesting on standard forms [bilinear form]
 def test_case_1g_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test and trial functions
     v1v2q = BlockTestFunction(W)
@@ -830,8 +830,8 @@ def test_case_1g_bilinear(mesh):
 # Case 1h: forms with at most one level of nesting, test non constant nesting levels [linear form]
 def test_case_1h_linear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test functions
     v1v2q = BlockTestFunction(W)
@@ -852,8 +852,8 @@ def test_case_1h_linear(mesh):
 # Case 1h: forms with at most one level of nesting, test non constant nesting levels [bilinear form]
 def test_case_1h_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test and trial functions
     v1v2q = BlockTestFunction(W)
@@ -885,8 +885,8 @@ def test_case_1h_bilinear(mesh):
 # Case 1i: forms with at most one level of nesting, test block_adjoint in nested matrix [bilinear form]
 def test_case_1i_bilinear(mesh):
     # Function spaces
-    V = VectorFunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = VectorFunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test and trial functions
     v1v2q = BlockTestFunction(W)
@@ -914,8 +914,8 @@ def test_case_1i_bilinear(mesh):
 # Case 2a: forms with at most two levels of nesting, test nesting on standard forms [linear form]
 def test_case_2a_linear(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test functions
     vxvyq = BlockTestFunction(W)
@@ -936,8 +936,8 @@ def test_case_2a_linear(mesh):
 # Case 2a: forms with at most two levels of nesting, test nesting on standard forms [bilinear form]
 def test_case_2a_bilinear(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test and trial functions
     vxvyq = BlockTestFunction(W)
@@ -973,8 +973,8 @@ def test_case_2a_bilinear(mesh):
 # Case 2b: forms with at most two levels of nesting, test block_adjoint in nested matrix
 def test_case_2b(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, Q])
     # Test and trial functions
     vxvyq = BlockTestFunction(W)
@@ -1008,8 +1008,8 @@ def test_case_2b(mesh):
 # Case 2c: forms with at most two levels of nesting, test nesting on standard forms [linear form]
 def test_case_2c_linear(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, V, V, Q, Q])
     # Test functions
     v1xv2xv1yv2yq1q2 = BlockTestFunction(W)
@@ -1036,8 +1036,8 @@ def test_case_2c_linear(mesh):
 # Case 2c: forms with at most two levels of nesting, test nesting on standard forms [bilinear form]
 def test_case_2c_bilinear(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, V, V, Q, Q])
     # Test and trial functions
     v1xv2xv1yv2yq1q2 = BlockTestFunction(W)
@@ -1106,8 +1106,8 @@ def test_case_2c_bilinear(mesh):
 # Case 2d: forms with at most two levels of nesting, test block_adjoint in nested matrix
 def test_case_2d(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, V, V, Q, Q])
     # Test and trial functions
     v1xv2xv1yv2yq1q2 = BlockTestFunction(W)
@@ -1174,8 +1174,8 @@ def test_case_2d(mesh):
 # Case 2e: forms with at most two levels of nesting, test nesting on standard forms [linear form]
 def test_case_2e_linear(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, V, V, Q])
     # Test functions
     v1xv2xv1yv2yq = BlockTestFunction(W)
@@ -1200,8 +1200,8 @@ def test_case_2e_linear(mesh):
 # Case 2e: forms with at most two levels of nesting, test nesting on standard forms [bilinear form]
 def test_case_2e_bilinear(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, V, V, Q])
     # Test and trial functions
     v1xv2xv1yv2yq = BlockTestFunction(W)
@@ -1257,8 +1257,8 @@ def test_case_2e_bilinear(mesh):
 # Case 2f: forms with at most two levels of nesting, test block_adjoint in nested matrix
 def test_case_2f(mesh):
     # Function spaces
-    V = FunctionSpace(mesh, "Lagrange", 2)
-    Q = FunctionSpace(mesh, "Lagrange", 1)
+    V = FunctionSpace(mesh, ("Lagrange", 2))
+    Q = FunctionSpace(mesh, ("Lagrange", 1))
     W = BlockFunctionSpace([V, V, V, V, Q])
     # Test and trial functions
     v1xv2xv1yv2yq = BlockTestFunction(W)
