@@ -18,4 +18,4 @@
 
 from multiphenics.python import cpp
 
-BlockPETScSubVector = cpp.la.BlockPETScSubVector
+BlockPETScSubVectorWrapper = cpp.la.BlockPETScSubVectorWrapper
