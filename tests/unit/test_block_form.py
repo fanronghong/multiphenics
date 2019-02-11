@@ -17,13 +17,11 @@
 #
 
 import pytest
+from petsc4py import PETSc
 from dolfin import div, ds, dx, grad, FunctionSpace, inner, MPI, UnitSquareMesh, VectorFunctionSpace
-from dolfin.fem import assemble
 from dolfin_utils.test.fixtures import fixture as module_fixture
 from multiphenics import block_adjoint, block_derivative, BlockForm, BlockFunction, BlockFunctionSpace, block_restrict, block_split, BlockTestFunction, BlockTrialFunction
-from test_utils import array_equal, get_list_of_functions_2, to_dense
-
-ds = dx # TODO due to dolfinx issue 251  # noqa
+from test_utils import assert_forms_equal, get_list_of_functions_2, to_dense
 
 # Mesh
 @module_fixture
@@ -45,7 +43,7 @@ def test_case_0a_linear(mesh):
     F = BlockForm(f)
     # Assert equality for linear form
     for i in range(F.block_size(0)):
-        assert array_equal(to_dense(assemble(F[i])), to_dense(assemble(f[i])))
+        assert_forms_equal(F[i], f[i])
 
 # Case 0a: simple forms (no nesting), standard forms [bilinear form]
 def test_case_0a_bilinear(mesh):
@@ -65,10 +63,7 @@ def test_case_0a_bilinear(mesh):
     # Assert equality for bilinear form
     for i in range(A.block_size(0)):
         for j in range(A.block_size(1)):
-            if i == 1 and j == 1:
-                assert A[i, j] is 0
-            else:
-                assert array_equal(to_dense(assemble(A[i, j])), to_dense(assemble(a[i][j])))
+            assert_forms_equal(A[i, j], a[i][j])
     
 # Case 0b: simple forms (no nesting), define a useless subspace (equal to original space) and assemble on subspace [linear form]
 def test_case_0b_linear(mesh):
@@ -88,7 +83,7 @@ def test_case_0b_linear(mesh):
     F_sub = block_restrict(f, W_sub)
     # Assert equality for restricted linear form
     for i in range(F_sub.block_size(0)):
-        assert array_equal(to_dense(assemble(F_sub[i])), to_dense(assemble(f[i])))
+        assert_forms_equal(F_sub[i], f[i])
     
 # Case 0b: simple forms (no nesting), define a useless subspace (equal to original space) and assemble on subspace [bilinear form]
 def test_case_0b_bilinear(mesh):
@@ -111,11 +106,8 @@ def test_case_0b_bilinear(mesh):
     # Assert equality for restricted bilinear form
     for i in range(A_sub.block_size(0)):
         for j in range(A_sub.block_size(1)):
-            if i == 1 and j == 1:
-                assert A_sub[i, j] is 0
-            else:
-                assert array_equal(to_dense(assemble(A_sub[i, j])), to_dense(assemble(a[i][j])))
-                
+            assert_forms_equal(A_sub[i, j], a[i][j])
+            
 # Case 0c: simple forms (no nesting), define the velocity subspace and assemble on subspace [linear form]
 def test_case_0c_linear(mesh):
     # Function spaces
@@ -133,7 +125,7 @@ def test_case_0c_linear(mesh):
     # Restrict linear form to subspace
     F_sub = block_restrict(f, W_sub)
     # Assert equality for restricted linear form
-    assert array_equal(to_dense(assemble(F_sub[0])), to_dense(assemble(f[0])))
+    assert_forms_equal(F_sub[0], f[0])
     
 # Case 0c: simple forms (no nesting), define the velocity subspace and assemble on subspace [bilinear form]
 def test_case_0c_bilinear(mesh):
@@ -154,7 +146,7 @@ def test_case_0c_bilinear(mesh):
     # Restrict bilinear form to subspace
     A_sub = block_restrict(a, [W_sub, W_sub])
     # Assert equality for restricted bilinear form
-    assert array_equal(to_dense(assemble(A_sub[0, 0])), to_dense(assemble(a[0][0])))
+    assert_forms_equal(A_sub[0, 0], a[0][0])
 
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [linear form]
 def test_case_0d_linear(mesh):
@@ -173,7 +165,7 @@ def test_case_0d_linear(mesh):
     # Restrict linear form to subspace
     F_sub = block_restrict(f, W_sub)
     # Assert equality for restricted linear form
-    assert array_equal(to_dense(assemble(F_sub[0])), to_dense(assemble(f[1])))
+    assert_forms_equal(F_sub[0], f[1])
     
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [bilinear form]
 def test_case_0d_bilinear_1(mesh):
@@ -194,7 +186,7 @@ def test_case_0d_bilinear_1(mesh):
     # Restrict bilinear form to subspace
     A_sub = block_restrict(a, [W_sub, W_sub])
     # Assert equality for restricted bilinear form
-    assert A_sub[0, 0] is 0
+    assert_forms_equal(A_sub[0, 0], 0)
     
 # Case 0d: simple forms (no nesting), define the pressure subspace and assemble on subspace [bilinear form]
 def test_case_0d_bilinear_2(mesh):
@@ -238,7 +230,7 @@ def test_case_0d_bilinear_3(mesh):
     a_sub = [[a[1][1]]]
     A_sub = BlockForm(a_sub, block_function_space=[W_sub, W_sub], block_form_rank=2)
     # Assert equality for restricted bilinear form
-    assert A_sub[0, 0] is 0
+    assert_forms_equal(A_sub[0, 0], 0)
     
 # Case 0e: simple forms (no nesting), define both velocity and pressure subspaces and assemble rectangular matrix on them
 def test_case_0e_1(mesh):
@@ -260,7 +252,7 @@ def test_case_0e_1(mesh):
     # Restrict bilinear form to subspace
     A_sub = block_restrict(a, [W_sub_0, W_sub_1])
     # Assert equality for restricted bilinear form
-    assert array_equal(to_dense(assemble(A_sub[0, 0])), to_dense(assemble(a[0][1])))
+    assert_forms_equal(A_sub[0, 0], a[0][1])
     
 # Case 0e: simple forms (no nesting), define both velocity and pressure subspaces and assemble rectangular matrix on them
 def test_case_0e_2(mesh):
@@ -306,7 +298,7 @@ def test_case_0e_3(mesh):
     a_sub = [[a[0][1]]]
     A_sub = BlockForm(a_sub, block_function_space=[W_sub_0, W_sub_1])
     # Assert equality for restricted bilinear form
-    assert array_equal(to_dense(assemble(A_sub[0, 0])), to_dense(assemble(a[0][1])))
+    assert_forms_equal(A_sub[0, 0], a[0][1])
     
 # Case 0f: simple forms (no nesting), test block_derivative
 def test_case_0f(mesh):
@@ -336,7 +328,7 @@ def test_case_0f(mesh):
             if i == 1 and j == 1:
                 assert Jac[i, j].empty()
             else:
-                assert array_equal(to_dense(assemble(Jac[i, j])), to_dense(assemble(a[i][j])))
+                assert_forms_equal(Jac[i, j], a[i][j])
                 
 # Case 0g: simple forms (no nesting), test block_adjoint
 def test_case_0g(mesh):
@@ -359,9 +351,9 @@ def test_case_0g(mesh):
     for i in range(At.block_size(0)):
         for j in range(At.block_size(1)):
             if i == 1 and j == 1:
-                assert At[i, j] is 0
+                assert_forms_equal(At[i, j], 0)
             else:
-                assert array_equal(to_dense(assemble(At[i, j])), (-1)**(i+j)*to_dense(assemble(a[i][j])))
+                assert_forms_equal(At[i, j], (-1)**(i+j)*a[i][j])
                 
 # Case 0h: simple forms (no nesting), sum [linear form]
 def test_case_0h_linear(mesh):
@@ -384,7 +376,7 @@ def test_case_0h_linear(mesh):
     # Assert equality for linear form
     assert F.block_size(0) == F_ex.block_size(0)
     for i in range(F.block_size(0)):
-        assert array_equal(to_dense(assemble(F[i])), to_dense(assemble(F_ex[i])))
+        assert_forms_equal(F[i], F_ex[i])
 
 # Case 0h: simple forms (no nesting), sum [bilinear form]
 def test_case_0h_bilinear(mesh):
@@ -411,10 +403,7 @@ def test_case_0h_bilinear(mesh):
     assert A.block_size(1) == A_ex.block_size(1)
     for i in range(A.block_size(0)):
         for j in range(A.block_size(1)):
-            if i == 1 and j == 1:
-                assert A[i, j] is 0
-            else:
-                assert array_equal(to_dense(assemble(A[i, j])), to_dense(assemble(A_ex[i, j])))
+            assert_forms_equal(A[i, j], A_ex[i, j])
 
 # Case 0i: simple forms (no nesting), sum [linear form]
 def test_case_0i_linear(mesh):
@@ -435,7 +424,7 @@ def test_case_0i_linear(mesh):
     # Assert equality for linear form
     assert F.block_size(0) == F_ex.block_size(0)
     for i in range(F.block_size(0)):
-        assert array_equal(to_dense(assemble(F[i])), to_dense(assemble(F_ex[i])))
+        assert_forms_equal(F[i], F_ex[i])
 
 # Case 0i: simple forms (no nesting), product with scalar [bilinear form]
 def test_case_0i_bilinear(mesh):
@@ -460,10 +449,7 @@ def test_case_0i_bilinear(mesh):
     assert A.block_size(1) == A_ex.block_size(1)
     for i in range(A.block_size(0)):
         for j in range(A.block_size(1)):
-            if i == 1 and j == 1:
-                assert A[i, j] == 0.
-            else:
-                assert array_equal(to_dense(assemble(A[i, j])), to_dense(assemble(A_ex[i, j])))
+            assert_forms_equal(A[i, j], A_ex[i, j])
 
 # Case 0j: simple forms (no nesting), product between bilinear form and solution
 def test_case_0j(mesh):
@@ -479,10 +465,10 @@ def test_case_0j(mesh):
     # Solutions
     (U_in, P_in) = get_list_of_functions_2(W)
     UP = BlockFunction(W)
-    U_in.vector().vec().copy(result=UP.sub(0).vector().vec())
-    U_in.vector().apply()
-    P_in.vector().vec().copy(result=UP.sub(1).vector().vec())
-    P_in.vector().apply()
+    U_in.vector().copy(result=UP.sub(0).vector())
+    U_in.vector().ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+    P_in.vector().copy(result=UP.sub(1).vector())
+    P_in.vector().ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
     UP.apply("from subfunctions")
     (U, P) = block_split(UP)
     # Forms
@@ -495,7 +481,7 @@ def test_case_0j(mesh):
     # Assert equality for the resulting linear form
     assert F.block_size(0) == F_ex.block_size(0)
     for i in range(F.block_size(0)):
-        assert array_equal(to_dense(assemble(F[i])), to_dense(assemble(F_ex[i])))
+        assert_forms_equal(F[i], F_ex[i])
 
 # Case 1a: forms with at most one level of nesting, test nesting on standard forms [linear form]
 def test_case_1a_linear(mesh):
@@ -513,8 +499,8 @@ def test_case_1a_linear(mesh):
          f_1]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_1[0])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_1[0])
 
 # Case 1a: forms with at most one level of nesting, test nesting on standard forms [bilinear form]
 def test_case_1a_bilinear(mesh):
@@ -536,10 +522,10 @@ def test_case_1a_bilinear(mesh):
          [a_10, a_11]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_10[0][0])))
-    assert A[1, 1] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_01[0][0])
+    assert_forms_equal(A[1, 0], a_10[0][0])
+    assert_forms_equal(A[1, 1], 0)
     
 # Case 1b: forms with at most one level of nesting, test non constant nesting levels [linear form]
 def test_case_1b_linear(mesh):
@@ -557,8 +543,8 @@ def test_case_1b_linear(mesh):
          f_1[0]]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_1[0])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_1[0])
 
 # Case 1b: forms with at most one level of nesting, test non constant nesting levels [bilinear form]
 def test_case_1b_bilinear(mesh):
@@ -580,10 +566,10 @@ def test_case_1b_bilinear(mesh):
          [a_10[0][0], a_11[0][0]]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_10[0][0])))
-    assert A[1, 1] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_01[0][0])
+    assert_forms_equal(A[1, 0], a_10[0][0])
+    assert_forms_equal(A[1, 1], 0)
     
 # Case 1c: forms with at most one level of nesting, test block_adjoint in nested matrix
 def test_case_1c(mesh):
@@ -603,10 +589,10 @@ def test_case_1c(mesh):
          [block_adjoint(a_01), 0   ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert A[0, 0] is 0
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(-a_10[0][0])))
-    assert A[1, 1] is 0
+    assert_forms_equal(A[0, 0], 0)
+    assert_forms_equal(A[0, 1], a_01[0][0])
+    assert_forms_equal(A[1, 0], -a_10[0][0])
+    assert_forms_equal(A[1, 1], 0)
     
 # Case 1d: forms with at most one level of nesting, test nesting on standard forms [linear form]
 def test_case_1d_linear(mesh):
@@ -626,10 +612,10 @@ def test_case_1d_linear(mesh):
          f_1]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_0[1])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_1[0])))
-    assert array_equal(to_dense(assemble(F[3])), to_dense(assemble(f_1[1])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_0[1])
+    assert_forms_equal(F[2], f_1[0])
+    assert_forms_equal(F[3], f_1[1])
     
 # Case 1d: forms with at most one level of nesting, test nesting on standard forms [bilinear form]
 def test_case_1d_bilinear(mesh):
@@ -655,22 +641,22 @@ def test_case_1d_bilinear(mesh):
          [a_10, a_11]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 3])), to_dense(assemble(a_01[0][1])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_01[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 3])), to_dense(assemble(a_01[1][1])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(a_10[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(a_10[0][1])))
-    assert A[2, 2] is 0
-    assert A[2, 3] is 0
-    assert array_equal(to_dense(assemble(A[3, 0])), to_dense(assemble(a_10[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 1])), to_dense(assemble(a_10[1][1])))
-    assert A[3, 2] is 0
-    assert A[3, 3] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], a_01[0][0])
+    assert_forms_equal(A[0, 3], a_01[0][1])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], a_01[1][0])
+    assert_forms_equal(A[1, 3], a_01[1][1])
+    assert_forms_equal(A[2, 0], a_10[0][0])
+    assert_forms_equal(A[2, 1], a_10[0][1])
+    assert_forms_equal(A[2, 2], 0)
+    assert_forms_equal(A[2, 3], 0)
+    assert_forms_equal(A[3, 0], a_10[1][0])
+    assert_forms_equal(A[3, 1], a_10[1][1])
+    assert_forms_equal(A[3, 2], 0)
+    assert_forms_equal(A[3, 3], 0)
     
 # Case 1e: forms with at most one level of nesting, test non constant nesting levels [linear form]
 def test_case_1e_linear(mesh):
@@ -691,10 +677,10 @@ def test_case_1e_linear(mesh):
          f_1[1]]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_0[1])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_1[0])))
-    assert array_equal(to_dense(assemble(F[3])), to_dense(assemble(f_1[1])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_0[1])
+    assert_forms_equal(F[2], f_1[0])
+    assert_forms_equal(F[3], f_1[1])
     
 # Case 1e: forms with at most one level of nesting, test non constant nesting levels [bilinear form]
 def test_case_1e_bilinear(mesh):
@@ -721,22 +707,22 @@ def test_case_1e_bilinear(mesh):
          [a_10[1][0], a_10[1][1], a_11[1][0], a_11[1][1]]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 3])), to_dense(assemble(a_01[0][1])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_01[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 3])), to_dense(assemble(a_01[1][1])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(a_10[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(a_10[0][1])))
-    assert A[2, 2] is 0
-    assert A[2, 3] is 0
-    assert array_equal(to_dense(assemble(A[3, 0])), to_dense(assemble(a_10[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 1])), to_dense(assemble(a_10[1][1])))
-    assert A[3, 2] is 0
-    assert A[3, 3] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], a_01[0][0])
+    assert_forms_equal(A[0, 3], a_01[0][1])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], a_01[1][0])
+    assert_forms_equal(A[1, 3], a_01[1][1])
+    assert_forms_equal(A[2, 0], a_10[0][0])
+    assert_forms_equal(A[2, 1], a_10[0][1])
+    assert_forms_equal(A[2, 2], 0)
+    assert_forms_equal(A[2, 3], 0)
+    assert_forms_equal(A[3, 0], a_10[1][0])
+    assert_forms_equal(A[3, 1], a_10[1][1])
+    assert_forms_equal(A[3, 2], 0)
+    assert_forms_equal(A[3, 3], 0)
     
 # Case 1f: forms with at most one level of nesting, test block_adjoint in nested matrix
 def test_case_1f(mesh):
@@ -758,22 +744,22 @@ def test_case_1f(mesh):
          [block_adjoint(a_01), 0   ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert A[0, 0] is 0
-    assert A[0, 1] is 0
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 3])), to_dense(assemble(a_01[0][1])))
-    assert A[1, 0] is 0
-    assert A[1, 1] is 0
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_01[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 3])), to_dense(assemble(a_01[1][1])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(-a_10[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(-3./2.*a_10[0][1])))
-    assert A[2, 2] is 0
-    assert A[2, 3] is 0
-    assert array_equal(to_dense(assemble(A[3, 0])), to_dense(assemble(-2./3.*a_10[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 1])), to_dense(assemble(-a_10[1][1])))
-    assert A[3, 2] is 0
-    assert A[3, 3] is 0
+    assert_forms_equal(A[0, 0], 0)
+    assert_forms_equal(A[0, 1], 0)
+    assert_forms_equal(A[0, 2], a_01[0][0])
+    assert_forms_equal(A[0, 3], a_01[0][1])
+    assert_forms_equal(A[1, 0], 0)
+    assert_forms_equal(A[1, 1], 0)
+    assert_forms_equal(A[1, 2], a_01[1][0])
+    assert_forms_equal(A[1, 3], a_01[1][1])
+    assert_forms_equal(A[2, 0], -a_10[0][0])
+    assert_forms_equal(A[2, 1], -3./2.*a_10[0][1])
+    assert_forms_equal(A[2, 2], 0)
+    assert_forms_equal(A[2, 3], 0)
+    assert_forms_equal(A[3, 0], -2./3.*a_10[1][0])
+    assert_forms_equal(A[3, 1], -a_10[1][1])
+    assert_forms_equal(A[3, 2], 0)
+    assert_forms_equal(A[3, 3], 0)
     
 # Case 1g: forms with at most one level of nesting, test nesting on standard forms [linear form]
 def test_case_1g_linear(mesh):
@@ -792,9 +778,9 @@ def test_case_1g_linear(mesh):
          f_1]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_0[1])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_1[0])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_0[1])
+    assert_forms_equal(F[2], f_1[0])
     
 # Case 1g: forms with at most one level of nesting, test nesting on standard forms [bilinear form]
 def test_case_1g_bilinear(mesh):
@@ -818,15 +804,15 @@ def test_case_1g_bilinear(mesh):
          [a_10, a_11]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_01[1][0])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(a_10[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(a_10[0][1])))
-    assert A[2, 2] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], a_01[0][0])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], a_01[1][0])
+    assert_forms_equal(A[2, 0], a_10[0][0])
+    assert_forms_equal(A[2, 1], a_10[0][1])
+    assert_forms_equal(A[2, 2], 0)
     
 # Case 1h: forms with at most one level of nesting, test non constant nesting levels [linear form]
 def test_case_1h_linear(mesh):
@@ -846,9 +832,9 @@ def test_case_1h_linear(mesh):
          f_1]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_0[1])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_1[0])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_0[1])
+    assert_forms_equal(F[2], f_1[0])
     
 # Case 1h: forms with at most one level of nesting, test non constant nesting levels [bilinear form]
 def test_case_1h_bilinear(mesh):
@@ -873,15 +859,15 @@ def test_case_1h_bilinear(mesh):
          [a_10                  , a_11      ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_01[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_01[1][0])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(a_10[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(a_10[0][1])))
-    assert A[2, 2] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], a_01[0][0])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], a_01[1][0])
+    assert_forms_equal(A[2, 0], a_10[0][0])
+    assert_forms_equal(A[2, 1], a_10[0][1])
+    assert_forms_equal(A[2, 2], 0)
     
 # Case 1i: forms with at most one level of nesting, test block_adjoint in nested matrix [bilinear form]
 def test_case_1i_bilinear(mesh):
@@ -902,15 +888,15 @@ def test_case_1i_bilinear(mesh):
          [block_adjoint(a_01), 0   ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert A[0, 0] is 0
-    assert A[0, 1] is 0
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_01[0][0])))
-    assert A[1, 0] is 0
-    assert A[1, 1] is 0
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_01[1][0])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(-a_10[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(-a_10[0][1])))
-    assert A[2, 2] is 0
+    assert_forms_equal(A[0, 0], 0)
+    assert_forms_equal(A[0, 1], 0)
+    assert_forms_equal(A[0, 2], a_01[0][0])
+    assert_forms_equal(A[1, 0], 0)
+    assert_forms_equal(A[1, 1], 0)
+    assert_forms_equal(A[1, 2], a_01[1][0])
+    assert_forms_equal(A[2, 0], -a_10[0][0])
+    assert_forms_equal(A[2, 1], -a_10[0][1])
+    assert_forms_equal(A[2, 2], 0)
 
 # Case 2a: forms with at most two levels of nesting, test nesting on standard forms [linear form]
 def test_case_2a_linear(mesh):
@@ -930,9 +916,9 @@ def test_case_2a_linear(mesh):
           f_2]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_1[0])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_2[0])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_1[0])
+    assert_forms_equal(F[2], f_2[0])
     
 # Case 2a: forms with at most two levels of nesting, test nesting on standard forms [bilinear form]
 def test_case_2a_bilinear(mesh):
@@ -961,15 +947,15 @@ def test_case_2a_bilinear(mesh):
          [a_20_21, 0      ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert A[0, 1] is 0
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(a_02[0][0])))
-    assert A[1, 0] is 0
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_11[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(a_12[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(a_20[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(a_21[0][0])))
-    assert A[2, 2] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], 0)
+    assert_forms_equal(A[0, 2], a_02[0][0])
+    assert_forms_equal(A[1, 0], 0)
+    assert_forms_equal(A[1, 1], a_11[0][0])
+    assert_forms_equal(A[1, 2], a_12[0][0])
+    assert_forms_equal(A[2, 0], a_20[0][0])
+    assert_forms_equal(A[2, 1], a_21[0][0])
+    assert_forms_equal(A[2, 2], 0)
     
 # Case 2b: forms with at most two levels of nesting, test block_adjoint in nested matrix
 def test_case_2b(mesh):
@@ -996,15 +982,15 @@ def test_case_2b(mesh):
          [a_20_21, 0                     ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert A[0, 1] is 0
-    assert array_equal(to_dense(assemble(A[0, 2])), to_dense(assemble(-a_02[0][0])))
-    assert A[1, 0] is 0
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_11[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 2])), to_dense(assemble(-a_12[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 0])), to_dense(assemble(a_20[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 1])), to_dense(assemble(a_21[0][0])))
-    assert A[2, 2] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], 0)
+    assert_forms_equal(A[0, 2], -a_02[0][0])
+    assert_forms_equal(A[1, 0], 0)
+    assert_forms_equal(A[1, 1], a_11[0][0])
+    assert_forms_equal(A[1, 2], -a_12[0][0])
+    assert_forms_equal(A[2, 0], a_20[0][0])
+    assert_forms_equal(A[2, 1], a_21[0][0])
+    assert_forms_equal(A[2, 2], 0)
     
 # Case 2c: forms with at most two levels of nesting, test nesting on standard forms [linear form]
 def test_case_2c_linear(mesh):
@@ -1027,12 +1013,12 @@ def test_case_2c_linear(mesh):
           f_2]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_0[1])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_1[0])))
-    assert array_equal(to_dense(assemble(F[3])), to_dense(assemble(f_1[1])))
-    assert array_equal(to_dense(assemble(F[4])), to_dense(assemble(f_2[0])))
-    assert array_equal(to_dense(assemble(F[5])), to_dense(assemble(f_2[1])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_0[1])
+    assert_forms_equal(F[2], f_1[0])
+    assert_forms_equal(F[3], f_1[1])
+    assert_forms_equal(F[4], f_2[0])
+    assert_forms_equal(F[5], f_2[1])
     
 # Case 2c: forms with at most two levels of nesting, test nesting on standard forms [bilinear form]
 def test_case_2c_bilinear(mesh):
@@ -1067,42 +1053,42 @@ def test_case_2c_bilinear(mesh):
          [a_20_21, 0      ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert A[0, 2] is 0
-    assert A[0, 3] is 0
-    assert array_equal(to_dense(assemble(A[0, 4])), to_dense(assemble(a_02[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 5])), to_dense(assemble(a_02[0][1])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert A[1, 2] is 0
-    assert A[1, 3] is 0
-    assert array_equal(to_dense(assemble(A[1, 4])), to_dense(assemble(a_02[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 5])), to_dense(assemble(a_02[1][1])))
-    assert A[2, 0] is 0
-    assert A[2, 1] is 0
-    assert array_equal(to_dense(assemble(A[2, 2])), to_dense(assemble(a_11[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 3])), to_dense(assemble(a_11[0][1])))
-    assert array_equal(to_dense(assemble(A[2, 4])), to_dense(assemble(a_12[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 5])), to_dense(assemble(a_12[0][1])))
-    assert A[3, 0] is 0
-    assert A[3, 1] is 0
-    assert array_equal(to_dense(assemble(A[3, 2])), to_dense(assemble(a_11[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 3])), to_dense(assemble(a_11[1][1])))
-    assert array_equal(to_dense(assemble(A[3, 4])), to_dense(assemble(a_12[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 5])), to_dense(assemble(a_12[1][1])))
-    assert array_equal(to_dense(assemble(A[4, 0])), to_dense(assemble(a_20[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 1])), to_dense(assemble(a_20[0][1])))
-    assert array_equal(to_dense(assemble(A[4, 2])), to_dense(assemble(a_21[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 3])), to_dense(assemble(a_21[0][1])))
-    assert A[4, 4] is 0
-    assert A[4, 5] is 0
-    assert array_equal(to_dense(assemble(A[5, 0])), to_dense(assemble(a_20[1][0])))
-    assert array_equal(to_dense(assemble(A[5, 1])), to_dense(assemble(a_20[1][1])))
-    assert array_equal(to_dense(assemble(A[5, 2])), to_dense(assemble(a_21[1][0])))
-    assert array_equal(to_dense(assemble(A[5, 3])), to_dense(assemble(a_21[1][1])))
-    assert A[5, 4] is 0
-    assert A[5, 5] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], 0)
+    assert_forms_equal(A[0, 3], 0)
+    assert_forms_equal(A[0, 4], a_02[0][0])
+    assert_forms_equal(A[0, 5], a_02[0][1])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], 0)
+    assert_forms_equal(A[1, 3], 0)
+    assert_forms_equal(A[1, 4], a_02[1][0])
+    assert_forms_equal(A[1, 5], a_02[1][1])
+    assert_forms_equal(A[2, 0], 0)
+    assert_forms_equal(A[2, 1], 0)
+    assert_forms_equal(A[2, 2], a_11[0][0])
+    assert_forms_equal(A[2, 3], a_11[0][1])
+    assert_forms_equal(A[2, 4], a_12[0][0])
+    assert_forms_equal(A[2, 5], a_12[0][1])
+    assert_forms_equal(A[3, 0], 0)
+    assert_forms_equal(A[3, 1], 0)
+    assert_forms_equal(A[3, 2], a_11[1][0])
+    assert_forms_equal(A[3, 3], a_11[1][1])
+    assert_forms_equal(A[3, 4], a_12[1][0])
+    assert_forms_equal(A[3, 5], a_12[1][1])
+    assert_forms_equal(A[4, 0], a_20[0][0])
+    assert_forms_equal(A[4, 1], a_20[0][1])
+    assert_forms_equal(A[4, 2], a_21[0][0])
+    assert_forms_equal(A[4, 3], a_21[0][1])
+    assert_forms_equal(A[4, 4], 0)
+    assert_forms_equal(A[4, 5], 0)
+    assert_forms_equal(A[5, 0], a_20[1][0])
+    assert_forms_equal(A[5, 1], a_20[1][1])
+    assert_forms_equal(A[5, 2], a_21[1][0])
+    assert_forms_equal(A[5, 3], a_21[1][1])
+    assert_forms_equal(A[5, 4], 0)
+    assert_forms_equal(A[5, 5], 0)
     
 # Case 2d: forms with at most two levels of nesting, test block_adjoint in nested matrix
 def test_case_2d(mesh):
@@ -1135,42 +1121,42 @@ def test_case_2d(mesh):
          [a_20_21, 0                     ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert A[0, 2] is 0
-    assert A[0, 3] is 0
-    assert array_equal(to_dense(assemble(A[0, 4])), to_dense(assemble(-a_02[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 5])), to_dense(assemble(-3./2.*a_02[0][1])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert A[1, 2] is 0
-    assert A[1, 3] is 0
-    assert array_equal(to_dense(assemble(A[1, 4])), to_dense(assemble(-2./3.*a_02[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 5])), to_dense(assemble(-a_02[1][1])))
-    assert A[2, 0] is 0
-    assert A[2, 1] is 0
-    assert array_equal(to_dense(assemble(A[2, 2])), to_dense(assemble(a_11[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 3])), to_dense(assemble(a_11[0][1])))
-    assert array_equal(to_dense(assemble(A[2, 4])), to_dense(assemble(-a_12[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 5])), to_dense(assemble(-7./6.*a_12[0][1])))
-    assert A[3, 0] is 0
-    assert A[3, 1] is 0
-    assert array_equal(to_dense(assemble(A[3, 2])), to_dense(assemble(a_11[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 3])), to_dense(assemble(a_11[1][1])))
-    assert array_equal(to_dense(assemble(A[3, 4])), to_dense(assemble(-6./7.*a_12[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 5])), to_dense(assemble(-a_12[1][1])))
-    assert array_equal(to_dense(assemble(A[4, 0])), to_dense(assemble(a_20[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 1])), to_dense(assemble(a_20[0][1])))
-    assert array_equal(to_dense(assemble(A[4, 2])), to_dense(assemble(a_21[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 3])), to_dense(assemble(a_21[0][1])))
-    assert A[4, 4] is 0
-    assert A[4, 5] is 0
-    assert array_equal(to_dense(assemble(A[5, 0])), to_dense(assemble(a_20[1][0])))
-    assert array_equal(to_dense(assemble(A[5, 1])), to_dense(assemble(a_20[1][1])))
-    assert array_equal(to_dense(assemble(A[5, 2])), to_dense(assemble(a_21[1][0])))
-    assert array_equal(to_dense(assemble(A[5, 3])), to_dense(assemble(a_21[1][1])))
-    assert A[5, 4] is 0
-    assert A[5, 5] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], 0)
+    assert_forms_equal(A[0, 3], 0)
+    assert_forms_equal(A[0, 4], -a_02[0][0])
+    assert_forms_equal(A[0, 5], -3./2.*a_02[0][1])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], 0)
+    assert_forms_equal(A[1, 3], 0)
+    assert_forms_equal(A[1, 4], -2./3.*a_02[1][0])
+    assert_forms_equal(A[1, 5], -a_02[1][1])
+    assert_forms_equal(A[2, 0], 0)
+    assert_forms_equal(A[2, 1], 0)
+    assert_forms_equal(A[2, 2], a_11[0][0])
+    assert_forms_equal(A[2, 3], a_11[0][1])
+    assert_forms_equal(A[2, 4], -a_12[0][0])
+    assert_forms_equal(A[2, 5], -7./6.*a_12[0][1])
+    assert_forms_equal(A[3, 0], 0)
+    assert_forms_equal(A[3, 1], 0)
+    assert_forms_equal(A[3, 2], a_11[1][0])
+    assert_forms_equal(A[3, 3], a_11[1][1])
+    assert_forms_equal(A[3, 4], -6./7.*a_12[1][0])
+    assert_forms_equal(A[3, 5], -a_12[1][1])
+    assert_forms_equal(A[4, 0], a_20[0][0])
+    assert_forms_equal(A[4, 1], a_20[0][1])
+    assert_forms_equal(A[4, 2], a_21[0][0])
+    assert_forms_equal(A[4, 3], a_21[0][1])
+    assert_forms_equal(A[4, 4], 0)
+    assert_forms_equal(A[4, 5], 0)
+    assert_forms_equal(A[5, 0], a_20[1][0])
+    assert_forms_equal(A[5, 1], a_20[1][1])
+    assert_forms_equal(A[5, 2], a_21[1][0])
+    assert_forms_equal(A[5, 3], a_21[1][1])
+    assert_forms_equal(A[5, 4], 0)
+    assert_forms_equal(A[5, 5], 0)
     
 # Case 2e: forms with at most two levels of nesting, test nesting on standard forms [linear form]
 def test_case_2e_linear(mesh):
@@ -1192,11 +1178,11 @@ def test_case_2e_linear(mesh):
           f_2]
     F = BlockForm(f)
     # Assert equality for linear form
-    assert array_equal(to_dense(assemble(F[0])), to_dense(assemble(f_0[0])))
-    assert array_equal(to_dense(assemble(F[1])), to_dense(assemble(f_0[1])))
-    assert array_equal(to_dense(assemble(F[2])), to_dense(assemble(f_1[0])))
-    assert array_equal(to_dense(assemble(F[3])), to_dense(assemble(f_1[1])))
-    assert array_equal(to_dense(assemble(F[4])), to_dense(assemble(f_2[0])))
+    assert_forms_equal(F[0], f_0[0])
+    assert_forms_equal(F[1], f_0[1])
+    assert_forms_equal(F[2], f_1[0])
+    assert_forms_equal(F[3], f_1[1])
+    assert_forms_equal(F[4], f_2[0])
     
 # Case 2e: forms with at most two levels of nesting, test nesting on standard forms [bilinear form]
 def test_case_2e_bilinear(mesh):
@@ -1229,31 +1215,31 @@ def test_case_2e_bilinear(mesh):
          [a_20_21, 0      ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert A[0, 2] is 0
-    assert A[0, 3] is 0
-    assert array_equal(to_dense(assemble(A[0, 4])), to_dense(assemble(a_02[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert A[1, 2] is 0
-    assert A[1, 3] is 0
-    assert array_equal(to_dense(assemble(A[1, 4])), to_dense(assemble(a_02[1][0])))
-    assert A[2, 0] is 0
-    assert A[2, 1] is 0
-    assert array_equal(to_dense(assemble(A[2, 2])), to_dense(assemble(a_11[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 3])), to_dense(assemble(a_11[0][1])))
-    assert array_equal(to_dense(assemble(A[2, 4])), to_dense(assemble(a_12[0][0])))
-    assert A[3, 0] is 0
-    assert A[3, 1] is 0
-    assert array_equal(to_dense(assemble(A[3, 2])), to_dense(assemble(a_11[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 3])), to_dense(assemble(a_11[1][1])))
-    assert array_equal(to_dense(assemble(A[3, 4])), to_dense(assemble(a_12[1][0])))
-    assert array_equal(to_dense(assemble(A[4, 0])), to_dense(assemble(a_20[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 1])), to_dense(assemble(a_20[0][1])))
-    assert array_equal(to_dense(assemble(A[4, 2])), to_dense(assemble(a_21[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 3])), to_dense(assemble(a_21[0][1])))
-    assert A[4, 4] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], 0)
+    assert_forms_equal(A[0, 3], 0)
+    assert_forms_equal(A[0, 4], a_02[0][0])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], 0)
+    assert_forms_equal(A[1, 3], 0)
+    assert_forms_equal(A[1, 4], a_02[1][0])
+    assert_forms_equal(A[2, 0], 0)
+    assert_forms_equal(A[2, 1], 0)
+    assert_forms_equal(A[2, 2], a_11[0][0])
+    assert_forms_equal(A[2, 3], a_11[0][1])
+    assert_forms_equal(A[2, 4], a_12[0][0])
+    assert_forms_equal(A[3, 0], 0)
+    assert_forms_equal(A[3, 1], 0)
+    assert_forms_equal(A[3, 2], a_11[1][0])
+    assert_forms_equal(A[3, 3], a_11[1][1])
+    assert_forms_equal(A[3, 4], a_12[1][0])
+    assert_forms_equal(A[4, 0], a_20[0][0])
+    assert_forms_equal(A[4, 1], a_20[0][1])
+    assert_forms_equal(A[4, 2], a_21[0][0])
+    assert_forms_equal(A[4, 3], a_21[0][1])
+    assert_forms_equal(A[4, 4], 0)
     
 # Case 2f: forms with at most two levels of nesting, test block_adjoint in nested matrix
 def test_case_2f(mesh):
@@ -1284,28 +1270,28 @@ def test_case_2f(mesh):
          [a_20_21, 0                     ]]
     A = BlockForm(a)
     # Assert equality for bilinear form
-    assert array_equal(to_dense(assemble(A[0, 0])), to_dense(assemble(a_00[0][0])))
-    assert array_equal(to_dense(assemble(A[0, 1])), to_dense(assemble(a_00[0][1])))
-    assert A[0, 2] is 0
-    assert A[0, 3] is 0
-    assert array_equal(to_dense(assemble(A[0, 4])), to_dense(assemble(-a_02[0][0])))
-    assert array_equal(to_dense(assemble(A[1, 0])), to_dense(assemble(a_00[1][0])))
-    assert array_equal(to_dense(assemble(A[1, 1])), to_dense(assemble(a_00[1][1])))
-    assert A[1, 2] is 0
-    assert A[1, 3] is 0
-    assert array_equal(to_dense(assemble(A[1, 4])), to_dense(assemble(-a_02[1][0])))
-    assert A[2, 0] is 0
-    assert A[2, 1] is 0
-    assert array_equal(to_dense(assemble(A[2, 2])), to_dense(assemble(a_11[0][0])))
-    assert array_equal(to_dense(assemble(A[2, 3])), to_dense(assemble(a_11[0][1])))
-    assert array_equal(to_dense(assemble(A[2, 4])), to_dense(assemble(-a_12[0][0])))
-    assert A[3, 0] is 0
-    assert A[3, 1] is 0
-    assert array_equal(to_dense(assemble(A[3, 2])), to_dense(assemble(a_11[1][0])))
-    assert array_equal(to_dense(assemble(A[3, 3])), to_dense(assemble(a_11[1][1])))
-    assert array_equal(to_dense(assemble(A[3, 4])), to_dense(assemble(-a_12[1][0])))
-    assert array_equal(to_dense(assemble(A[4, 0])), to_dense(assemble(a_20[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 1])), to_dense(assemble(a_20[0][1])))
-    assert array_equal(to_dense(assemble(A[4, 2])), to_dense(assemble(a_21[0][0])))
-    assert array_equal(to_dense(assemble(A[4, 3])), to_dense(assemble(a_21[0][1])))
-    assert A[4, 4] is 0
+    assert_forms_equal(A[0, 0], a_00[0][0])
+    assert_forms_equal(A[0, 1], a_00[0][1])
+    assert_forms_equal(A[0, 2], 0)
+    assert_forms_equal(A[0, 3], 0)
+    assert_forms_equal(A[0, 4], -a_02[0][0])
+    assert_forms_equal(A[1, 0], a_00[1][0])
+    assert_forms_equal(A[1, 1], a_00[1][1])
+    assert_forms_equal(A[1, 2], 0)
+    assert_forms_equal(A[1, 3], 0)
+    assert_forms_equal(A[1, 4], -a_02[1][0])
+    assert_forms_equal(A[2, 0], 0)
+    assert_forms_equal(A[2, 1], 0)
+    assert_forms_equal(A[2, 2], a_11[0][0])
+    assert_forms_equal(A[2, 3], a_11[0][1])
+    assert_forms_equal(A[2, 4], -a_12[0][0])
+    assert_forms_equal(A[3, 0], 0)
+    assert_forms_equal(A[3, 1], 0)
+    assert_forms_equal(A[3, 2], a_11[1][0])
+    assert_forms_equal(A[3, 3], a_11[1][1])
+    assert_forms_equal(A[3, 4],-a_12[1][0])
+    assert_forms_equal(A[4, 0], a_20[0][0])
+    assert_forms_equal(A[4, 1], a_20[0][1])
+    assert_forms_equal(A[4, 2], a_21[0][0])
+    assert_forms_equal(A[4, 3], a_21[0][1])
+    assert_forms_equal(A[4, 4], 0)
