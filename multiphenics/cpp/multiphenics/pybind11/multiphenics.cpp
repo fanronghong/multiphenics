@@ -24,11 +24,8 @@ namespace multiphenics_wrappers
 {
   void function(py::module& m);
   void fem(py::module& m);
-  void io(py::module& m);
   void la(py::module& m);
   void log(py::module& m);
-  void mesh(py::module& m);
-  void nls(py::module& m);
 }
 
 PYBIND11_MODULE(SIGNATURE, m)
@@ -36,31 +33,19 @@ PYBIND11_MODULE(SIGNATURE, m)
   // Create module for C++ wrappers
   m.doc() = "multiphenics Python interface";
   
-  // Create log submodule [log]
+  // Create log submodule
   py::module log = m.def_submodule("log", "Logging module");
   multiphenics_wrappers::log(log);
 
-  // Create function submodule [function]
+  // Create function submodule
   py::module function = m.def_submodule("function", "Function module");
   multiphenics_wrappers::function(function);
 
-  // Create mesh submodule [mesh]
-  py::module mesh = m.def_submodule("mesh", "Mesh library module");
-  multiphenics_wrappers::mesh(mesh);
-
-  // Create fem submodule [fem]
+  // Create fem submodule
   py::module fem = m.def_submodule("fem", "FEM module");
   multiphenics_wrappers::fem(fem);
-
-  // Create io submodule
-  py::module io = m.def_submodule("io", "I/O module");
-  multiphenics_wrappers::io(io);
 
   // Create la submodule
   py::module la = m.def_submodule("la", "Linear algebra module");
   multiphenics_wrappers::la(la);
-
-  // Create nls submodule
-  py::module nls = m.def_submodule("nls", "Nonlinear solver module");
-  multiphenics_wrappers::nls(nls);
 }
