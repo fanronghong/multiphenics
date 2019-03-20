@@ -86,7 +86,7 @@ tests_serial:
       - pytest_tests_serial.html
     when: on_failure
     
-.tutorials_parallel:
+tutorials_parallel:
   image:
     name: $TESTING_IMAGE
     entrypoint: ["/sbin/my_init","--quiet","--","/sbin/setuser","fenics"]
@@ -96,13 +96,13 @@ tests_serial:
     - export DIJITSO_CACHE_DIR=$CI_PROJECT_DIR/.dijitso
     - python3 -c "import multiphenics"
   script:
-    - mpirun -n 2 pytest -vv --html=pytest_tutorials_parallel.html --self-contained-html tutorials
+    - mpirun -n 2 pytest -vv --gc-disable --gc-scope function --html=pytest_tutorials_parallel.html --self-contained-html tutorials
   artifacts:
     paths:
       - pytest_tutorials_parallel.html
     when: on_failure
     
-.tests_parallel:
+tests_parallel:
   image:
     name: $TESTING_IMAGE
     entrypoint: ["/sbin/my_init","--quiet","--","/sbin/setuser","fenics"]
@@ -112,7 +112,7 @@ tests_serial:
     - export DIJITSO_CACHE_DIR=$CI_PROJECT_DIR/.dijitso
     - python3 -c "import multiphenics"
   script:
-    - mpirun -n 2 pytest -vv --html=pytest_tests_parallel.html --self-contained-html tests
+    - mpirun -n 2 pytest -vv --gc-disable --gc-scope function --html=pytest_tests_parallel.html --self-contained-html tests
   artifacts:
     paths:
       - pytest_tests_parallel.html
